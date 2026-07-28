@@ -3,13 +3,21 @@ import { colors, components } from "@/constants/theme";
 import useAuthStore from "@/store/auth.store";
 import clsx from "clsx";
 import { Redirect, Tabs } from "expo-router";
-import { Image, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TabLayout = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuthStore();
   const insets = useSafeAreaInsets();
   const tabBar = components.tabBar;
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background p-5">
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   if (!isAuthenticated) return <Redirect href="/sign-in" />;
 

@@ -1,5 +1,5 @@
 import useAuthStore from "@/store/auth.store";
-import { Link } from "expo-router";
+
 import { Image, Text, View } from "react-native";
 
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
@@ -12,15 +12,9 @@ import { formatCurrency } from "@/lib/utils";
 const SafeAreaView = styled(RNSafeAreaView);
 
 export default function App() {
-  const { user, isLoading } = useAuthStore();
+  const { user } = useAuthStore();
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-background p-5">
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
+  // comentario
 
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
@@ -30,7 +24,9 @@ export default function App() {
             source={user?.avatar ? { uri: user.avatar } : images.avatar}
             className="home-avatar"
           />
-          <Text className="home-user-name">Olá, {user?.name}!</Text>
+          <Text className="home-user-name">
+            Olá, {user?.name.substring(0, 5)}!
+          </Text>
         </View>
 
         <Image source={icons.add} className="home-add-icon" />

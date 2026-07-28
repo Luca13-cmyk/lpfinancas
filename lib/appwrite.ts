@@ -6,6 +6,8 @@ export const appwriteConfig = {
   platform: "com.lp.financas",
   databaseId: "6a5ea2ff001cb593d387",
   userTableId: "user",
+  transactionsTableId: "transactions",
+  subscriptionsTableId: "subscriptions",
 };
 
 export const client = new Client();
@@ -63,6 +65,7 @@ export const signIn = async ({ email, password }: SignInParams) => {
 
 export const getCurrentUser = async () => {
   try {
+    // const result = await account.deleteSessions();
     const currentAccount = await account.get();
     if (!currentAccount) {
       throw new Error("No current user found");
@@ -77,5 +80,13 @@ export const getCurrentUser = async () => {
     return currentUserRow;
   } catch (error) {
     throw new Error(("Error getting current user: " + error) as string);
+  }
+};
+
+export const signOut = async () => {
+  try {
+    await account.deleteSessions();
+  } catch (error) {
+    throw new Error(("Error signing out: " + error) as string);
   }
 };
