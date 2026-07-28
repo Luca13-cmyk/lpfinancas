@@ -14,7 +14,7 @@ const SafeAreaView = styled(RNSafeAreaView);
 export default function App() {
   const { user } = useAuthStore();
 
-  // comentario
+  // comentario teste
 
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
