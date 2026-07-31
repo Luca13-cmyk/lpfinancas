@@ -1,4 +1,12 @@
-import { Account, Avatars, Client, ID, TablesDB } from "react-native-appwrite";
+import {
+  Account,
+  Avatars,
+  Client,
+  ID,
+  Query,
+  Storage,
+  TablesDB,
+} from "react-native-appwrite";
 
 export const appwriteConfig = {
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
@@ -8,6 +16,8 @@ export const appwriteConfig = {
   userTableId: "user",
   transactionsTableId: "transactions",
   subscriptionsTableId: "subscriptions",
+  categoriesTableId: "categories",
+  bucketId: "6a6be11900202babf4f6",
 };
 
 export const client = new Client();
@@ -20,7 +30,9 @@ client
 export const account = new Account(client);
 export const databases = new TablesDB(client);
 export const avatars = new Avatars(client);
+export const storage = new Storage(client);
 
+// USER
 export const createUser = async ({
   email,
   password,
@@ -89,4 +101,91 @@ export const signOut = async () => {
   } catch (error) {
     throw new Error(("Error signing out: " + error) as string);
   }
+};
+
+// SUBSCRIPTIONS
+export const getSubscriptions = async ({
+  accountId,
+}: {
+  accountId: string;
+}) => {
+  try {
+    const subscriptions = await databases.listRows({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.subscriptionsTableId,
+      queries: [Query.equal("accountId", accountId)],
+    });
+
+    return subscriptions;
+  } catch (error) {
+    throw new Error(("Error getting subscriptions: " + error) as string);
+  }
+};
+
+export const createSubscription = async (
+  subscription: Omit<Subscription, "$id">,
+) => {
+  try {
+    const newSubscription = await databases.createRow({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.subscriptionsTableId,
+      rowId: ID.unique(),
+      data: subscription,
+    });
+
+    return newSubscription;
+  } catch (error) {
+    throw new Error(("Error creating subscription: " + error) as string);
+  }
+};
+
+// CATEGORIES
+export const getCategories = async ({ accountId }: { accountId: string }) => {
+  try {
+    const categories = await databases.listRows({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.categoriesTableId,
+      queries: [Query.equal("accountId", accountId)],
+    });
+    return categories;
+  } catch (error) {
+    throw new Error(("Error getting categories: " + error) as string);
+  }
+};
+
+// STORAGE
+
+export const getIconStorageUrl = async (iconName: string): Promise<any> => {
+  try {
+    const formattedName = iconName.toLowerCase().trim();
+
+    // 1. Lista todos os arquivos presentes no Bucket de ícones
+    const response = await storage.listFiles({
+      bucketId: appwriteConfig.bucketId,
+    });
+
+    console.log("formatted", formattedName);
+    console.log("response", response);
+
+    // 2. Procura um arquivo cujo nome contenha a palavra informada
+    const matchedFile = response.files.find((file) =>
+      file.name.toLowerCase().includes(formattedName),
+    );
+
+    console.log("matched", matchedFile);
+
+    if (matchedFile) {
+      const url =
+        `${appwriteConfig.endpoint}/storage/buckets/` +
+        `${appwriteConfig.bucketId}/files/${matchedFile.$id}/view` +
+        `?project=${appwriteConfig.projectId}`;
+
+      return url;
+    }
+  } catch (error) {
+    console.error("Erro ao buscar ícone no Appwrite Storage:", error);
+  }
+
+  // Retorna uma URL padrão de fallback caso não encontre ou dê erro
+  return "https://fra.cloud.appwrite.io/v1/storage/buckets/6a6be11900202babf4f6/files/6a6c0c17003d01390b39/view?project=6a5ea09a003383b3dc55&mode=admin";
 };

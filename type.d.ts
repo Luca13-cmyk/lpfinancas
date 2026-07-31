@@ -17,6 +17,7 @@ declare global {
     name: string;
     email: string;
     avatar: string;
+    balance: number;
   }
 
   interface CustomButtonProps {
@@ -55,24 +56,22 @@ declare global {
   }
 
   interface Subscription {
-    id: string;
-    icon: ImageSourcePropType;
+    $id: string;
+    icon: string;
     name: string;
-    plan?: string;
-    category?: string;
-    paymentMethod?: string;
-    status?: string;
-    startDate?: string;
-    price: number;
-    currency?: string;
-    billing: string;
-    renewalDate?: string;
+    accountId?: string;
+    amount?: number;
+    billingDay: string;
+    categories: string;
+    frequency: string;
+    status: string;
     color?: string;
   }
 
   interface SubscriptionCardProps extends Omit<Subscription, "id"> {
     expanded: boolean;
     onPress: () => void;
+    onLongPress: () => void;
     onCancelPress?: () => void;
     isCancelling?: boolean;
   }
@@ -93,6 +92,9 @@ declare global {
 
   interface ListHeadingProps {
     title: string;
+    actionText?: string;
+    onPress?: () => void;
+    onPressCreate?: () => void;
   }
 }
 
