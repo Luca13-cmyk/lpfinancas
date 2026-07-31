@@ -172,7 +172,7 @@ export default function App() {
   // comentario teste
 
   // console.log(subscriptions?.rows);
-  console.log(categories?.rows[0].$createdAt);
+  // console.log(categories?.rows[0].$createdAt);
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
       <FlatList
