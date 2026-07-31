@@ -141,6 +141,7 @@ export const createSubscription = async (
 
 // CATEGORIES
 export const getCategories = async ({ accountId }: { accountId: string }) => {
+  console.log("get categories accountId" + " " + accountId);
   try {
     const categories = await databases.listRows({
       databaseId: appwriteConfig.databaseId,
@@ -148,6 +149,21 @@ export const getCategories = async ({ accountId }: { accountId: string }) => {
       queries: [Query.equal("accountId", accountId)],
     });
     return categories;
+  } catch (error) {
+    throw new Error(("Error getting categories: " + error) as string);
+  }
+};
+
+export const createCategory = async (category: Omit<Categories, "$id">) => {
+  try {
+    const newCategory = await databases.createRow({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.categoriesTableId,
+      rowId: ID.unique(),
+      data: category,
+    });
+
+    return newCategory;
   } catch (error) {
     throw new Error(("Error getting categories: " + error) as string);
   }

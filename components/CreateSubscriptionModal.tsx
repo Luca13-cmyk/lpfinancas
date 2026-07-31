@@ -11,8 +11,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import clsx from "clsx";
-import { icons } from "@/constants/icons";
-import dayjs from "dayjs";
+
 import useAppwrite from "@/lib/useAppwrite";
 import { getCategories, getIconStorageUrl } from "@/lib/appwrite";
 import { getRandomColor } from "@/lib/utils";
@@ -77,7 +76,7 @@ const CreateSubscriptionModal = ({
 
     const newSubscription: Subscription = {
       $id: "", // This will be set by the database
-      name: name.trim(),
+      name: subscriptionName,
       amount: priceValue,
       accountId: user?.$id,
 

@@ -68,6 +68,12 @@ declare global {
     color?: string;
   }
 
+  interface Categories {
+    $id: string;
+    accountId?: string;
+    name: string;
+    type: "expense" | "income";
+  }
   interface SubscriptionCardProps extends Omit<Subscription, "id"> {
     expanded: boolean;
     onPress: () => void;

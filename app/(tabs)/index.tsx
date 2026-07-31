@@ -1,6 +1,13 @@
 import useAuthStore from "@/store/auth.store";
 
-import { FlatList, Image, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
@@ -14,6 +21,7 @@ import dayjs from "dayjs";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import useAppwrite from "@/lib/useAppwrite";
 import {
+  createCategory,
   createSubscription,
   getCategories,
   getSubscriptions,
@@ -22,6 +30,7 @@ import { icons } from "@/constants/icons";
 
 import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
 import clsx from "clsx";
+import CreateCategoryModal from "@/components/CreateCategoryModal";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -29,6 +38,9 @@ export default function App() {
   const { user } = useAuthStore();
   const [isModalSubscriptionVisible, setIsModalSubscriptionVisible] =
     useState(false);
+
+  const [isModalCategoryVisible, setIsModalCategoryVisible] = useState(false);
+
   const [isModalTransactionVisible, setIsModalTransactionVisible] =
     useState(false);
   const [isCreatingSubscription, setIscreatingSubscription] =
@@ -40,8 +52,8 @@ export default function App() {
 
   const {
     data: subscriptions,
-    refetch,
-    loading,
+    refetch: refetchSubscriptions,
+    loading: loadingSubscriptions,
   } = useAppwrite({
     fn: getSubscriptions,
     params: { accountId: user!.$id },
@@ -97,8 +109,33 @@ export default function App() {
     // });
   };
 
+  const handleCategoryPress = (item: Categories) => {
+    console.log(item.$id);
+  };
+
   const handleSubscriptionOnLongPress = (item: Subscription) => {
     console.log(item.$id);
+  };
+
+  const handleCreateCategory = async (newData: Omit<Categories, "$id">) => {
+    console.log("Creating new category:", newData);
+    setIscreatingSubscription(true);
+    try {
+      // 1. Cria o registro no Appwrite
+      await createCategory(newData);
+
+      // 2. Recarrega a lista chamando a função de refetch
+      if (refetchCategories) {
+        await refetchCategories();
+      }
+
+      // 3. Fecha o modal/formulário se necessário
+      // onClose();
+    } catch (error) {
+      console.error("Erro ao criar categoria:", error);
+    } finally {
+      setIscreatingSubscription(false);
+    }
   };
 
   const handleCreateSubscription = async (
@@ -111,8 +148,8 @@ export default function App() {
       await createSubscription(newData);
 
       // 2. Recarrega a lista chamando a função de refetch
-      if (refetch) {
-        await refetch();
+      if (refetchSubscriptions) {
+        await refetchSubscriptions();
       }
 
       // 3. Fecha o modal/formulário se necessário
@@ -124,10 +161,18 @@ export default function App() {
     }
   };
 
+  const categoriesRecents = categories?.rows
+    ?.slice() // Cria uma cópia rasa do array para não mutar o estado original
+    ?.sort(
+      (a, b) =>
+        new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime(),
+    ) // Ordena pelas mais recentes
+    ?.slice(0, 6);
+
   // comentario teste
 
   // console.log(subscriptions?.rows);
-
+  console.log(categories?.rows[0].$createdAt);
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
       <FlatList
@@ -176,14 +221,18 @@ export default function App() {
             </View> */}
 
             <View className="mb-5">
-              <ListHeading title="Categorias" onPressCreate={() => {}} />
+              <ListHeading
+                title="Categorias"
+                onPressCreate={() => setIsModalCategoryVisible(true)}
+              />
               <View className="auth-field">
                 <View className="category-scroll">
-                  {categories?.rows?.slice(0, 7).map((cat) => (
+                  {// Pega apenas os 6 primeiros
+                  categoriesRecents?.map((cat) => (
                     <Pressable
                       key={cat.$id}
                       className={clsx("category-chip")}
-                      onPress={() => {}}
+                      onPress={() => handleCategoryPress}
                     >
                       <Text className={clsx("category-chip-text")}>
                         {cat.name}
@@ -241,6 +290,11 @@ export default function App() {
         visible={isModalSubscriptionVisible}
         onClose={() => setIsModalSubscriptionVisible(false)}
         onSubmit={handleCreateSubscription}
+      />
+      <CreateCategoryModal
+        visible={isModalCategoryVisible}
+        onClose={() => setIsModalCategoryVisible(false)}
+        onSubmit={handleCreateCategory}
       />
     </SafeAreaView>
   );
