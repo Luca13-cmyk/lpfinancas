@@ -154,6 +154,22 @@ export const getCategories = async ({ accountId }: { accountId: string }) => {
   }
 };
 
+export const getCategory = async ({ categoryId }: { categoryId: string }) => {
+  try {
+    const categoryRow = await databases.getRow({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.categoriesTableId,
+      rowId: categoryId,
+    });
+
+    if (!categoryRow) throw new Error("No category data found");
+
+    return categoryRow;
+  } catch (error) {
+    throw new Error(("Error getting category: " + error) as string);
+  }
+};
+
 export const createCategory = async (category: Omit<Categories, "$id">) => {
   try {
     const newCategory = await databases.createRow({

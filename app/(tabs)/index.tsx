@@ -184,7 +184,13 @@ export default function App() {
                   source={user?.avatar ? { uri: user.avatar } : images.avatar}
                   className="home-avatar"
                 />
-                <Text className="home-user-name">{user?.name}</Text>
+                <Text
+                  className="home-user-name"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {user?.name.slice(0, 6)}
+                </Text>
               </View>
               <View className="home-add-row">
                 <Pressable onPress={() => setIsModalSubscriptionVisible(true)}>
@@ -193,10 +199,6 @@ export default function App() {
                 <Pressable onPress={() => setIsModalTransactionVisible(true)}>
                   <Image source={icons.transaction} className="home-add-icon" />
                 </Pressable>
-
-                {/* <Pressable onPress={() => setIsModalSubscriptionVisible(true)}>
-                <Image source={icons.transaction} className="home-add-icon" />
-              </Pressable> */}
               </View>
             </View>
 

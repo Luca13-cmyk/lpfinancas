@@ -6,6 +6,8 @@ import {
   formatSubscriptionDateTime,
 } from "@/lib/utils";
 import clsx from "clsx";
+import useAppwrite from "@/lib/useAppwrite";
+import { getCategory } from "@/lib/appwrite";
 
 const SubscriptionCard = ({
   name,
@@ -22,6 +24,24 @@ const SubscriptionCard = ({
   onPress,
   onLongPress,
 }: SubscriptionCardProps) => {
+  const {
+    data: category,
+    refetch: refetchCategory,
+    loading: loadingCategory,
+  } = useAppwrite({
+    fn: getCategory,
+    params: { categoryId: categories },
+  });
+
+  const categoryRow = category ? (category as unknown as Categories) : null;
+
+  const frequencyLabel =
+    frequency === "monthly"
+      ? "Mensal"
+      : frequency === "yearly"
+        ? "Anual"
+        : "Não encontrado";
+
   return (
     <Pressable
       onPress={onPress}
@@ -37,7 +57,7 @@ const SubscriptionCard = ({
               {name}
             </Text>
             <Text numberOfLines={1} ellipsizeMode="tail" className="sub-meta">
-              {categories?.trim() ||
+              {categoryRow?.name?.trim() ||
                 frequency?.trim() ||
                 (billingDay ? formatSubscriptionDateTime(billingDay) : "")}
             </Text>
@@ -61,7 +81,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {(categories?.trim() || frequency?.trim()) ?? "Not provided"}
+                  {categoryRow?.name?.trim() ?? "Não encontrado"}
                 </Text>
               </View>
             </View>
@@ -73,7 +93,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {frequency ? frequency : "Not provided"}
+                  {frequency && frequencyLabel}
                 </Text>
               </View>
             </View>
@@ -85,7 +105,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {billingDay ? billingDay : "Not provided"}
+                  {billingDay ? billingDay : "Não encontrado"}
                 </Text>
               </View>
             </View>
@@ -97,7 +117,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {status ? formatStatusLabel(status) : "Not provided"}
+                  {status ? formatStatusLabel(status) : "Não encontrado"}
                 </Text>
               </View>
             </View>
